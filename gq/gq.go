@@ -91,33 +91,69 @@ func (n *Node) Str() string {
 	return "error"
 }
 
-// G fetches the key at the given map node. If this is not a map node, returns an error node. If the key is not found, returns null.
-func (n *Node) G(path string) *Node {
+// G fetches the values at the given keys in the map node. If there is only one key, returns that key's value. If there are many keys, returns
+// an array of their non-null values. If this is not a map node, returns an error node. If none of the keys are not found, returns null.
+func (n *Node) G(keys ...string) *Node {
 	if n.err != nil {
 		return n
 	}
-	n.trace("G", path)
+	n.trace("G", keys)
 	m, ok := n.val.(map[string]interface{})
 	if !ok {
 		n.err = fmt.Errorf("expected JSON map, found: %T", n.val)
 		return n
 	}
-	n.val = m[path]
+	if len(keys) == 1 {
+		n.val = m[keys[0]]
+		return n
+	}
+	var vals []interface{}
+	for _, k := range keys {
+		if v, ok := m[k]; ok {
+			vals = append(vals, v)
+		}
+	}
+	if len(vals) == 0 {
+		n.val = nil
+		return n
+	}
+	n.val = vals
 	return n
 }
 
-// I fetches the value at the given array index. If this is not an array node, returns an error node. If the index is not found, returns null.
-func (n *Node) I(i int) *Node {
+// I fetches the value at the given array indices. If this is not an array node, returns an error node. If none of the indices are found, returns null.
+// If there is only one index given, returns just that value. Otherwise returns an array of values.
+func (n *Node) I(is ...int) *Node {
 	if n.err != nil {
 		return n
 	}
-	n.trace("I", i)
+	n.trace("I", is)
 	a, ok := n.val.([]interface{})
 	if !ok {
 		n.err = fmt.Errorf("expected JSON array, found: %T", n.val)
 		return n
 	}
-	n.val = a[i]
+	if len(is) == 1 {
+		i := is[0]
+		if i < 0 || i >= len(a) {
+			n.val = nil
+			return n
+		}
+		n.val = a[i]
+		return n
+	}
+	var vals []interface{}
+	for _, i := range is {
+		if i < 0 || i >= len(a) {
+			continue
+		}
+		vals = append(vals, a[i])
+	}
+	if len(vals) == 0 {
+		n.val = nil
+		return n
+	}
+	n.val = vals
 	return n
 }
 
