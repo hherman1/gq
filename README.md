@@ -14,7 +14,7 @@ Or download the binaries [here](https://github.com/hherman1/gq/releases/latest)
 
 # Usage
 
-Pipe some input into `gq` and pass in a block of go code as the argument. The variable `j` is set to the passed in JSON and printed at the end of the function, so manipulate it (e.g below) in order to change the output.
+Pipe some input into `gq` and pass in a block of go code as the argument. The variable `j` is set to the passed in JSON and printed at the end of the function, so manipulate it (e.g below) in order to change the output. The `gq` library is inlined in the program, and described in detail in the API reference above.
 
 # Examples
 
