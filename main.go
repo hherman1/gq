@@ -21,11 +21,20 @@ var prelude string
 func main() {
 	if err := run(); err != nil {
 		fmt.Println("Error: ", err)
+		fmt.Println(help)
 		os.Exit(1)
 	}
 }
 
 func run() error {
+	// Check for help invocation.
+	for _, a := range os.Args {
+		if a == "-h" || a == "--help" {
+			fmt.Println(help)
+			return nil
+		}
+	}
+
 	// prepare program
 	tmpl, err := template.New("tmpl").Parse(programTmpl)
 	if err != nil {
@@ -88,3 +97,53 @@ func run() error {
 	*/
 	return nil
 }
+
+const help = `gq executes go scripts against json.
+
+Usage: cat f.json | gq 'j.G("hello").G("world")
+
+The script you pass into 'gq' has access to a variable called 'j' which contains the parsed JSON. After your script is run, whatever remains in 'j' is printed. 'j' is of type *Node. The following functions are available to the script:
+
+func (n *Node) Array() []interface{}
+    Fetches the current value of the node as an array, if possible. Otherwise,
+    sets the error for the node.
+
+func (n *Node) Filter(f func(*Node) bool) *Node
+    Filter removes nodes from the interior of the given map or array node if
+    they fail the filter function.
+
+func (n *Node) Float() float64
+    Fetches the current value of the node as float, if possible. Otherwise, sets
+    the error for the node.
+
+func (n *Node) G(keys ...string) *Node
+    G fetches the values at the given keys in the map node. If there is only one
+    key, returns that key's value. If there are many keys, returns an array of
+    their non-null values. If this is not a map node, returns an error node. If
+    none of the keys are not found, returns null.
+
+func (n *Node) I(is ...int) *Node
+    I fetches the value at the given array indices. If this is not an array
+    node, returns an error node. If none of the indices are found, returns null.
+    If there is only one index given, returns just that value. Otherwise returns
+    an array of values.
+
+func (n *Node) Int() int
+    Fetches the current value of the node as an integer, if possible. Otherwise,
+    sets the error for the node.
+
+func (n Node) IsMap() bool
+    Checks if this is a map node
+
+func (n *Node) Map(f func(*Node) *Node) *Node
+    Map replaces nodes from the interior of the given map or array node with the
+    output of the function.
+
+func (n *Node) MapValue() map[string]interface{}
+    Fetches the current value of the node as a map, if possible. Otherwise, sets
+    the error for the node.
+
+func (n *Node) Str() string
+    Fetches the current value of the node as string, if possible. Otherwise,
+    sets the error for the node.
+`
