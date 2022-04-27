@@ -60,6 +60,6 @@ Speaking of surprising limits, `gq` runs your code in the `yaegi` go interpreter
 
 # This tool sucks.
 
-Yea, well, I built it last night, so, yea it kinda sucks. But please file issues! Or submit PRs! Maybe this will turn into something useful?
+Yea, well, I built it last night, so, yea it kinda sucks. But please file issues! Or submit PRs! Maybe this will turn into something useful? At least maybe it will inspire some conversation.
 
 I think it needs a lot of refinement still, in short.
