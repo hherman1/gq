@@ -104,7 +104,7 @@ func (n *Node) G(keys ...string) *Node {
 		return n
 	}
 	if len(keys) == 1 {
-		n.val = []interface{}{m[keys[0]]}
+		n.val = m[keys[0]]
 		return n
 	}
 	vals := []interface{}{}
