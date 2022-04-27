@@ -4,11 +4,12 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
-	"io"
 	"os"
-	"os/exec"
 	"strings"
 	"text/template"
+
+	"github.com/traefik/yaegi/interp"
+	"github.com/traefik/yaegi/stdlib"
 )
 
 //go:embed program.go.tmpl
@@ -41,36 +42,49 @@ func run() error {
 		return fmt.Errorf("generating program: %w", err)
 	}
 
-	// save to disk
-	f, err := os.CreateTemp(os.TempDir(), "*.go")
+	// execute
+	i := interp.New(interp.Options{})
+	i.Use(stdlib.Symbols)
+	p, err := i.Compile(runnable.String())
 	if err != nil {
-		return fmt.Errorf("create temp file: %w", err)
+		return fmt.Errorf("compile generated program: %w", err)
 	}
-	defer func() {
-		f.Close()
-		os.Remove(f.Name())
-	}()
-	_, err = io.Copy(f, bytes.NewReader(runnable.Bytes()))
+	_, err = i.Execute(p)
 	if err != nil {
-		return fmt.Errorf("write to temp file: %w", err)
+		return fmt.Errorf("execute program: %w", err)
 	}
-	err = f.Close()
-	if err != nil {
-		return fmt.Errorf("closing temp file: %w", err)
-	}
-
-	// execute new program
-	cmd := exec.Command("go", "run", f.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		if cmd.ProcessState.ExitCode() == 1 {
-			// the generated program compiled successfully, but had some error output. We should just exit immediately.
-			os.Exit(1)
+	/*
+		// save to disk
+		f, err := os.CreateTemp(os.TempDir(), "*.go")
+		if err != nil {
+			return fmt.Errorf("create temp file: %w", err)
 		}
-		return fmt.Errorf("running generated program: %w", err)
-	}
+		defer func() {
+			f.Close()
+			os.Remove(f.Name())
+		}()
+		_, err = io.Copy(f, bytes.NewReader(runnable.Bytes()))
+		if err != nil {
+			return fmt.Errorf("write to temp file: %w", err)
+		}
+		err = f.Close()
+		if err != nil {
+			return fmt.Errorf("closing temp file: %w", err)
+		}
+
+		// execute new program
+		cmd := exec.Command("go", "run", f.Name())
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err = cmd.Run()
+		if err != nil {
+			if cmd.ProcessState.ExitCode() == 1 {
+				// the generated program compiled successfully, but had some error output. We should just exit immediately.
+				os.Exit(1)
+			}
+			return fmt.Errorf("running generated program: %w", err)
+		}
+	*/
 	return nil
 }

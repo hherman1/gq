@@ -104,14 +104,16 @@ func (n *Node) G(keys ...string) *Node {
 		return n
 	}
 	if len(keys) == 1 {
-		n.val = m[keys[0]]
+		n.val = []interface{}{m[keys[0]]}
 		return n
 	}
-	var vals []interface{}
+	vals := []interface{}{}
 	for _, k := range keys {
-		if v, ok := m[k]; ok {
-			vals = append(vals, v)
+		val := m[k]
+		if val == nil {
+			continue
 		}
+		vals = append(vals, val)
 	}
 	if len(vals) == 0 {
 		n.val = nil
