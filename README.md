@@ -56,7 +56,7 @@ $ echo '[1, 2, 3, 4]' | gq 'j.Map(func(n *Node) *Node {n.val = n.Int() + 50 / 2;
 
 # How's it work?
 
-Speaking of surprising limits, `gq` runs your code in the `yaegi` go interpreter. This means that it runs quickly for small inputs/programs (the alternative was `go run`, which is... not quite as quick). However, it also means its not the fastest `*q` out there, and further it means that you might run into quirks with `yaegi` interpretation limitations. Seems to work pretty well so far though.
+Speaking of surprising limits, `gq` runs your code in the [yaegi](https://github.com/traefik/yaegi) go interpreter. This means that it runs quickly for small inputs/programs (the alternative was `go run`, which is... not quite as quick). However, it also means its not the fastest `*q` out there, and further it means that you might run into quirks with `yaegi` interpretation limitations. Seems to work pretty well so far though.
 
 # This tool sucks.
 
